@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE StepCoreXML>
+<world xmlns="https://edu.kde.org/step/StepCoreXML" version="1.0" id="1">
+    <name>world1</name>
+    <color>#ffffffff</color>
+    <time>89.24000000000275</time>
+    <timeScale>1</timeScale>
+    <errorsCalculation>false</errorsCalculation>
+    <item class="Particle" id="2">
+        <name>particle1</name>
+        <color>#ff000000</color>
+        <position>(-1,-4.6383e-17)</position>
+        <velocity>(-4.74125e-18,1.19556e-17)</velocity>
+        <mass>1</mass>
+    </item>
+    <item class="Anchor" id="3">
+        <name>anchor1</name>
+        <color>#ffff0000</color>
+        <body>2</body>
+        <position>(-1,0)</position>
+        <angle>0</angle>
+    </item>
+    <item class="Particle" id="4">
+        <name>particle2</name>
+        <color>#ff000000</color>
+        <position>(-4.34649e-17,-0.110713)</position>
+        <velocity>(-8.17471e-18,0.860135)</velocity>
+        <mass>1</mass>
+    </item>
+    <item class="Spring" id="5">
+        <name>spring1</name>
+        <color>#ff00ff00</color>
+        <restLength>1</restLength>
+        <stiffness>5</stiffness>
+        <damping>1</damping>
+        <body1>4</body1>
+        <body2>2</body2>
+        <localPosition1>(0,0)</localPosition1>
+        <localPosition2>(0,0)</localPosition2>
+    </item>
+    <item class="WeightForce" id="6">
+        <name>weightForce1</name>
+        <color>#ff000000</color>
+        <weightConst>-0.057971014108076924</weightConst>
+        <weightConstVariance>0</weightConstVariance>
+    </item>
+    <item class="Particle" id="7">
+        <name>particle3</name>
+        <color>#ff000000</color>
+        <position>(1,0)</position>
+        <velocity>(0,0)</velocity>
+        <mass>1</mass>
+    </item>
+    <item class="Anchor" id="8">
+        <name>anchor2</name>
+        <color>#ffff0000</color>
+        <body>7</body>
+        <position>(1,0)</position>
+        <angle>0</angle>
+    </item>
+    <item class="Spring" id="9">
+        <name>spring2</name>
+        <color>#ff00ff00</color>
+        <restLength>1</restLength>
+        <stiffness>5</stiffness>
+        <damping>1</damping>
+        <body1>7</body1>
+        <body2>4</body2>
+        <localPosition1>(0,0)</localPosition1>
+        <localPosition2>(0,0)</localPosition2>
+    </item>
+    <item class="Controller" id="10">
+        <name>controller1</name>
+        <color>#ff000000</color>
+        <position>(-3.92,2.82)</position>
+        <size>(200,60)</size>
+        <object>6</object>
+        <property>weightConst</property>
+        <index>-1</index>
+        <limits>(-1,1)</limits>
+        <increaseShortcut></increaseShortcut>
+        <decreaseShortcut></decreaseShortcut>
+        <increment>0.1</increment>
+    </item>
+    <solver class="GslRKF45Solver" id="11">
+        <name>solver1</name>
+        <stepSize>1</stepSize>
+        <toleranceAbs>0.001</toleranceAbs>
+        <toleranceRel>0.001</toleranceRel>
+    </solver>
+    <collisionSolver class="GJKCollisionSolver" id="12">
+        <name>collisionSolver1</name>
+        <toleranceAbs>0.001</toleranceAbs>
+    </collisionSolver>
+    <constraintSolver class="CGConstraintSolver" id="13">
+        <name>constraintSolver1</name>
+    </constraintSolver>
+</world>
