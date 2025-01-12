@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import smplotlib
 from scipy.signal import find_peaks
 
-k = 1 # spring constant
+k = 3 # spring constant
 l0 = 1 # rest length!! 
 force = -0.01 # applied in newtons
 mass = 0.1
