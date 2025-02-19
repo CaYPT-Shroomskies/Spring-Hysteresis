@@ -5,7 +5,7 @@ from scipy.signal import find_peaks
 
 k = 3 # spring constant
 l0 = 1 # rest length!! 
-force = -0.01 # applied in newtons
+force = 0.01 # applied in newtons
 mass = 0.1
 
 # runtime variables
@@ -15,7 +15,7 @@ x_end = 1.2
 y_start  = -1
 y_end = 1
 
-discretizations = 1000
+discretizations = 100
 
 zeros = np.empty((discretizations,3))
 zeros[:] = np.nan
