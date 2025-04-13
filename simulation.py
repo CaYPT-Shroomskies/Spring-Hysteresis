@@ -12,10 +12,10 @@ import time
 import argparse
 
 # Modules
-import animate as anim
+import Graphing
 
 # Default Values
-timestep = 1/60
+timestep = 1/240
 p1 = np.array([-0.8,0])
 p2 = np.array([0.8,0])
 
@@ -23,11 +23,14 @@ relaxed = 1.6
 k = 10
 mass = 1
 force = 0
-damping = 0
+damping = 0.5
 
 # Flags
 animate = False
 save_anim = False
+
+# Plotting
+graphs = [Graphing.Coordinates, Graphing.Energy]
 
 @njit(cache=True)
 def magn(vec:np.ndarray):
@@ -41,8 +44,9 @@ def unit(vec:np.ndarray):
 def step(t, state:np.ndarray):
     p,v = state[0:2],state[2:4]
     f = -k * (2 * p - p1 - p2 - relaxed*(unit(p-p1) + unit(p-p2)))
+    f_d = v * damping
 
-    return np.array([v[0],v[1], f[0]/mass,f[1]/mass])
+    return np.array([v[0],v[1], (f[0]-f_d[0])/mass,(f[1]-f_d[1])/mass])
 
 
 def solve(y0):
@@ -54,17 +58,31 @@ def solve(y0):
     solve = returned.y.T
 
     if __name__ == "__main__":
-        if not animate:
-            print("Solved ODE:",int(1e3* (time.perf_counter()-t0) ),"ms\n")
-            plt.plot(time_array,solve[:,1],label='Y')
-            plt.plot(time_array,solve[:,0],label='X')
+        print("Solved ODE:",int(1e3* (time.perf_counter()-t0) ),"ms\n")
 
+        if len(graphs) > 0:
+            fig, axis = plt.subplots(len(graphs))
+            if len(graphs) == 1:
+                axis = [axis]
+            axis[0].set_title("Spring Hysteresis [MODEL]")
+
+            for (i,func) in enumerate(graphs):
+                func(axis[i],
+                    solve=solve,
+                    timestep=timestep,
+                    time=time_array,
+                    mass=mass,
+                    k=k,
+                    relaxed=relaxed,
+                    p1=p1,
+                    p2=p2
+                )
+
+            plt.tight_layout()
             plt.show()
-        else:
-            anim.animate_simulation(solve,time_array,save_anim)
 
-
-
+        if animate:
+            Graphing.animate_simulation(solve,time_array,p1,p2,save_anim=save_anim)
     else:
         return solve,time_array
 

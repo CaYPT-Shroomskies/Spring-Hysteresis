@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
-import smplotlib
 
 k = 1 # spring constant
 l0 = 1 # rest length!! 

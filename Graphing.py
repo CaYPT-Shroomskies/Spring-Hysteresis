@@ -1,21 +1,35 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import numpy.linalg as la
 import matplotlib.patches as patches
-import simulation
 
-def animate_simulation(solve, time_array, save_anim=False):
-    """
-    Animate the spring-mass system with two springs in a "V" shape.
+def Coordinates(ax, **args):
+    solve = args['solve']
+    time = args['time']
+    ax.plot(time,solve[:,0],label="X")
+    ax.plot(time,solve[:,1],label="Y")
+    ax.legend()
 
-    Parameters:
-    - solve: Solution array from the ODE solver, with positions and velocities
-    - time_array: Time points corresponding to solution points
-    - save_anim: Boolean indicating whether to save the animation
-    """
+def Energy(ax,**args):
+    solve = args['solve']
+    time = args['time']
+    timestep = args['timestep']
+
+    mass, k, relaxed, p1, p2 = args['mass'], args['k'], args['relaxed'], args['p1'], args['p2']
+
+    ek = 0.5*mass*la.norm(solve[:,2:4],axis=1)**2
+
+    d1 = la.norm(solve[:,0:2] - p1,axis=1) - relaxed
+    d2 = la.norm(solve[:,0:2] - p2,axis=1) - relaxed
+    es = 0.5*k*(d1**2 + d2**2)
+
+    ax.plot(time,ek+es,label="Energy")
+    ax.legend()
+
+def animate_simulation(solve, time_array,p1,p2, save_anim=False):
     # Extract position data
     positions = solve[:, 0:2]  # x, y coordinates of the mass
-    p1, p2 = simulation.p1, simulation.p2
 
     # Create figure and axis
     fig, ax = plt.subplots()
@@ -23,8 +37,8 @@ def animate_simulation(solve, time_array, save_anim=False):
     # Set limits to accommodate the spring system
     margin = 0.1
     max_y = max(abs(positions[:, 1])) + margin
+
     ax.set_xlim(p1[0]-0.1, p2[0]+0.1)
-    print(simulation.p1)
     ax.set_ylim(-max_y, max_y)
 
     # Fixed points for the springs
@@ -98,8 +112,7 @@ def animate_simulation(solve, time_array, save_anim=False):
         springs[0].set_data(spring1_points[:, 0], spring1_points[:, 1])
         springs[1].set_data(spring2_points[:, 0], spring2_points[:, 1])
 
-        # Update trajectory (showing the last 100 points)
-        start_idx = max(0, i - 100)
+        start_idx = max(0, i - 200)
         trajectory.set_data(positions[start_idx:i+1, 0], positions[start_idx:i+1, 1])
 
 
@@ -109,8 +122,7 @@ def animate_simulation(solve, time_array, save_anim=False):
     frames = min(500, len(time_array))  # Limit frames for performance
     step = len(time_array) // frames if len(time_array) > frames else 1
 
-    anim = FuncAnimation(fig, animate, frames=range(0, len(time_array), step),
-                         interval=30, blit=True)
+    anim = FuncAnimation(fig, animate, frames=range(0, len(time_array), step),interval=30, blit=True)
 
     # Save animation if requested
     if save_anim:
