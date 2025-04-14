@@ -15,9 +15,9 @@ import argparse
 import Graphing
 
 # Default Values
-timestep = 1/240
-p1 = np.array([-0.8,0])
-p2 = np.array([0.8,0])
+timestep = 1 / 240
+p1 = np.array([-0.8, 0])
+p2 = np.array([0.8, 0])
 
 relaxed = 1.6
 k = 10
@@ -32,21 +32,24 @@ save_anim = False
 # Plotting
 graphs = [Graphing.Coordinates, Graphing.Energy]
 
-@njit(cache=True)
-def magn(vec:np.ndarray):
-    return np.sqrt(vec[0]**2 + vec[1]**2)
 
 @njit(cache=True)
-def unit(vec:np.ndarray):
+def magn(vec: np.ndarray):
+    return np.sqrt(vec[0] ** 2 + vec[1] ** 2)
+
+
+@njit(cache=True)
+def unit(vec: np.ndarray):
     return vec / magn(vec)
 
+
 @njit(cache=True)
-def step(t, state:np.ndarray):
-    p,v = state[0:2],state[2:4]
-    f = -k * (2 * p - p1 - p2 - relaxed*(unit(p-p1) + unit(p-p2)))
+def step(t, state: np.ndarray):
+    p, v = state[0:2], state[2:4]
+    f = -k * (2 * p - p1 - p2 - relaxed * (unit(p - p1) + unit(p - p2)))
     f_d = v * damping
 
-    return np.array([v[0],v[1], (f[0]-f_d[0])/mass,(f[1]-f_d[1])/mass])
+    return np.array([v[0], v[1], (f[0] - f_d[0]) / mass, (f[1] - f_d[1]) / mass])
 
 
 def solve(y0):
@@ -54,11 +57,11 @@ def solve(y0):
 
     time_array = np.linspace(0, runtime, int(runtime / timestep))
 
-    returned = solve_ivp(step, [0,runtime], y0, t_eval=time_array)
+    returned = solve_ivp(step, [0, runtime], y0, t_eval=time_array)
     solve = returned.y.T
 
     if __name__ == "__main__":
-        print("Solved ODE:",int(1e3* (time.perf_counter()-t0) ),"ms\n")
+        print("Solved ODE:", int(1e3 * (time.perf_counter() - t0)), "ms\n")
 
         if len(graphs) > 0:
             fig, axis = plt.subplots(len(graphs))
@@ -66,8 +69,9 @@ def solve(y0):
                 axis = [axis]
             axis[0].set_title("Spring Hysteresis [MODEL]")
 
-            for (i,func) in enumerate(graphs):
-                func(axis[i],
+            for i, func in enumerate(graphs):
+                func(
+                    axis[i],
                     solve=solve,
                     timestep=timestep,
                     time=time_array,
@@ -75,33 +79,49 @@ def solve(y0):
                     k=k,
                     relaxed=relaxed,
                     p1=p1,
-                    p2=p2
+                    p2=p2,
                 )
 
             plt.tight_layout()
             plt.show()
 
         if animate:
-            Graphing.animate_simulation(solve,time_array,p1,p2,save_anim=save_anim)
+            Graphing.animate_simulation(solve, time_array, p1, p2, save_anim=save_anim)
     else:
-        return solve,time_array
+        return solve, time_array
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description ='[Spring Hysteresis Simulation IYPT 2025]')
+    parser = argparse.ArgumentParser(
+        description="[Spring Hysteresis Simulation IYPT 2025]"
+    )
 
-    parser.add_argument("-l", "--length", help="Runtime of the simulation",action="store",type=float,default=8)
-    parser.add_argument("-a", "--animate", help="Show the animation",action="store_true")
-    parser.add_argument("-s", "--save", help="Save the animation",action="store_true")
-    parser.add_argument('-v', '--version', action='version',version='[Spring Hysteresis] v0.1a')
-    os.environ['QT_LOGGING_RULES'] = 'qt.qpa.wayland.textinput=false'
+    parser.add_argument(
+        "-l",
+        "--length",
+        help="Runtime of the simulation",
+        action="store",
+        type=float,
+        default=8,
+    )
+    parser.add_argument(
+        "-a", "--animate", help="Show the animation", action="store_true"
+    )
+    parser.add_argument("-s", "--save", help="Save the animation", action="store_true")
+    parser.add_argument(
+        "-v", "--version", action="version", version="[Spring Hysteresis] v0.1a"
+    )
+    os.environ["QT_LOGGING_RULES"] = "qt.qpa.wayland.textinput=false"
 
     args = parser.parse_args()
     save_anim = args.save
     animate = args.animate
     runtime = args.length
 
-    print("\n\033[1mSpring Hysteresis Numerical Solution\033[0m\nKindly wait while the simulation is run!\n")
+    print(
+        "\n\033[1mSpring Hysteresis Numerical Solution\033[0m\nKindly wait while the simulation is run!\n"
+    )
 
     while True:
         print("\n\033[1mInput initial conditions (x, y, x',y') or [x] to exit:\033[0m")
-        solve(np.array(input().split(),dtype='float'))
+        solve(np.array(input().split(), dtype="float"))

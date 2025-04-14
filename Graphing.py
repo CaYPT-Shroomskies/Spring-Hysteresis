@@ -4,30 +4,39 @@ from matplotlib.animation import FuncAnimation
 import numpy.linalg as la
 import matplotlib.patches as patches
 
+
 def Coordinates(ax, **args):
-    solve = args['solve']
-    time = args['time']
-    ax.plot(time,solve[:,0],label="X")
-    ax.plot(time,solve[:,1],label="Y")
+    solve = args["solve"]
+    time = args["time"]
+    ax.plot(time, solve[:, 0], label="X")
+    ax.plot(time, solve[:, 1], label="Y")
     ax.legend()
 
-def Energy(ax,**args):
-    solve = args['solve']
-    time = args['time']
-    timestep = args['timestep']
 
-    mass, k, relaxed, p1, p2 = args['mass'], args['k'], args['relaxed'], args['p1'], args['p2']
+def Energy(ax, **args):
+    solve = args["solve"]
+    time = args["time"]
+    timestep = args["timestep"]
 
-    ek = 0.5*mass*la.norm(solve[:,2:4],axis=1)**2
+    mass, k, relaxed, p1, p2 = (
+        args["mass"],
+        args["k"],
+        args["relaxed"],
+        args["p1"],
+        args["p2"],
+    )
 
-    d1 = la.norm(solve[:,0:2] - p1,axis=1) - relaxed
-    d2 = la.norm(solve[:,0:2] - p2,axis=1) - relaxed
-    es = 0.5*k*(d1**2 + d2**2)
+    ek = 0.5 * mass * la.norm(solve[:, 2:4], axis=1) ** 2
 
-    ax.plot(time,ek+es,label="Energy")
+    d1 = la.norm(solve[:, 0:2] - p1, axis=1) - relaxed
+    d2 = la.norm(solve[:, 0:2] - p2, axis=1) - relaxed
+    es = 0.5 * k * (d1**2 + d2**2)
+
+    ax.plot(time, ek + es, label="Energy")
     ax.legend()
 
-def animate_simulation(solve, time_array,p1,p2, save_anim=False):
+
+def animate_simulation(solve, time_array, p1, p2, save_anim=False):
     # Extract position data
     positions = solve[:, 0:2]  # x, y coordinates of the mass
 
@@ -38,34 +47,33 @@ def animate_simulation(solve, time_array,p1,p2, save_anim=False):
     margin = 0.1
     max_y = max(abs(positions[:, 1])) + margin
 
-    ax.set_xlim(p1[0]-0.1, p2[0]+0.1)
+    ax.set_xlim(p1[0] - 0.1, p2[0] + 0.1)
     ax.set_ylim(-max_y, max_y)
 
     # Fixed points for the springs
 
     # Create plot elements
     springs = []
-    springs.append(ax.plot([], [], '-', lw=2)[0])  # left spring
-    springs.append(ax.plot([], [], '-', lw=2)[0])  # right spring
+    springs.append(ax.plot([], [], "-", lw=2)[0])  # left spring
+    springs.append(ax.plot([], [], "-", lw=2)[0])  # right spring
 
     # Create mass (as a circle)
-    mass_point = patches.Circle((0, 0), 0.05, fc='r', ec='k', zorder=3)
+    mass_point = patches.Circle((0, 0), 0.05, fc="r", ec="k", zorder=3)
     ax.add_patch(mass_point)
 
     # Fixed points (as squares)
-    ax.add_patch(patches.Rectangle(p1 - 0.03, 0.06, 0.06, fc='gray', ec='k', zorder=2))
-    ax.add_patch(patches.Rectangle(p2 - 0.03, 0.06, 0.06, fc='gray', ec='k', zorder=2))
+    ax.add_patch(patches.Rectangle(p1 - 0.03, 0.06, 0.06, fc="gray", ec="k", zorder=2))
+    ax.add_patch(patches.Rectangle(p2 - 0.03, 0.06, 0.06, fc="gray", ec="k", zorder=2))
 
     # Trajectory line
-    trajectory, = ax.plot([], [], 'g-', alpha=0.5, lw=1)
-
+    (trajectory,) = ax.plot([], [], "g-", alpha=0.5, lw=1)
 
     # Set up the plot
-    ax.set_aspect('equal')
+    ax.set_aspect("equal")
     ax.grid(True)
-    ax.set_title('Spring Hysteresis Simulation')
-    ax.set_xlabel('X Position')
-    ax.set_ylabel('Y Position')
+    ax.set_title("Spring Hysteresis Simulation")
+    ax.set_xlabel("X Position")
+    ax.set_ylabel("Y Position")
 
     # Initialize zigzag lines for springs
     def spring_points(start, end, segments=20):
@@ -113,8 +121,9 @@ def animate_simulation(solve, time_array,p1,p2, save_anim=False):
         springs[1].set_data(spring2_points[:, 0], spring2_points[:, 1])
 
         start_idx = max(0, i - 200)
-        trajectory.set_data(positions[start_idx:i+1, 0], positions[start_idx:i+1, 1])
-
+        trajectory.set_data(
+            positions[start_idx : i + 1, 0], positions[start_idx : i + 1, 1]
+        )
 
         return springs + [mass_point, trajectory]
 
@@ -122,11 +131,13 @@ def animate_simulation(solve, time_array,p1,p2, save_anim=False):
     frames = min(500, len(time_array))  # Limit frames for performance
     step = len(time_array) // frames if len(time_array) > frames else 1
 
-    anim = FuncAnimation(fig, animate, frames=range(0, len(time_array), step),interval=30, blit=True)
+    anim = FuncAnimation(
+        fig, animate, frames=range(0, len(time_array), step), interval=30, blit=True
+    )
 
     # Save animation if requested
     if save_anim:
-        anim.save('spring_hysteresis.mp4', writer='ffmpeg', fps=30, dpi=100)
+        anim.save("spring_hysteresis.mp4", writer="ffmpeg", fps=30, dpi=100)
 
     plt.tight_layout()
     plt.show()
